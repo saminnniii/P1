@@ -35,5 +35,7 @@ class Cart:
         self.cart=[]
         
 
+print(p)
+
 
 
