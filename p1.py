@@ -1,15 +1,23 @@
+def log_action(func):
+    def wrapper(*args,**kwargs):
+        func(*args,**kwargs)
+        if func.__name__ == "add_to_cart":
+             print("product added successfully")
+        elif func.__name__ == "remove_from_cart":
+             print("product removed successfully")
+    return wrapper
 class User:
-    def __init__(self,id,name,email):
+    def __init__(self,id,name,emailوcart):
         self._id=id
         self.name=name
         self.email=email
-    def add_to_cart(self,product):
-        self.cart.append(product)
-    def remove_from_cart(self,product):
-        if product in self.cart
-            self.cart.remove(product)
-        else:
-            print("product is not in cart")
+        self.cart=cart
+    @log_action
+    def add_to_cart(self,product,quantity):
+        self.cart.add_product(product,quantity)
+    @log_action
+    def remove_from_cart(self,product,quantity):
+        self.cart.remove_product(product,quantity)
 class Product:
     def __init__(self,id,name,price,stock):
         self.id=id
@@ -29,6 +37,15 @@ class Product:
             print("not enough stock")
             return
         self.stock-=amount
+    @classmethod
+    def from_dict(cls,data):
+        return cls(data["id"], data["name"], data["price"], data["stock"])
+    @staticmethod
+    def is_valid_price(value):
+        if value>0 :
+            return True
+        else:
+            return False
 class Cart:
     def __init__(self):
         self.cart={}
@@ -60,12 +77,14 @@ class Cart:
         else:
             return False
 class Order:
-    def __init__(self,id,user,items,total_price):
+    def __init__(self,id,user,items,total_price,cart,Paymentgateway):
         self.id=id
         self.user=user
         self.items=items
         self.total_price=total_price
-        self.status=pending
+        self.cart=cart
+        self.Paymentgateway=Paymentgateway
+        self.status="pending"
     def pay(self,gateway):
         if self.status=="cancelled":
             return
@@ -87,6 +106,31 @@ class Fakepaymentgateway(Paymentgateway):
 class Bankpaymentgateway(Paymentgateway):
     def pay(self,amount):
         return "bank payment successful"
+class EmailNotification:
+    def send(self,message):
+        print("Email sent")
+class SMSNotification:
+    def send(self,message):
+        print("SMS sent")
+def notify_user(notification,message):
+    notification.send(message)
+class OrderTransaction:
+    def __enter__(self):
+        print("Transaction started")
+    def __exit__(self,exc_type,exc_value,traceback):
+        print("Transaction finished")
+        if exc_type==None:
+            print("no error")
+        else:
+            print("error found")
+with OrderTransaction():
+
+
+
+
+
+
+
 
 
 
