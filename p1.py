@@ -7,7 +7,7 @@ def log_action(func):
              print("product removed successfully")
     return wrapper
 class User:
-    def __init__(self,id,name,emailوcart):
+    def __init__(self,id,name,email,cart):
         self._id=id
         self.name=name
         self.email=email
@@ -61,8 +61,8 @@ class Cart:
             print("this isnt in tour cart")
     def calculate_total(self):
         total=0  
-        for product,quantity in self.cart,items():
-            product.price*quantity=+total      
+        for product,quantity in self.cart.items():
+            total += product.price * quantity      
         return total
     def __len__(self):
         return len(self.cart)
@@ -124,6 +124,58 @@ class OrderTransaction:
         else:
             print("error found")
 with OrderTransaction():
+    print("Creating order...")
+class Orderservice:
+    def __init__(self,product_repository):
+        self.product_repository=product_repository
+    def create_order(self,id, user, items, total_price, cart, gateway):
+        return Order(id, user, items, total_price, cart, gateway)
+    def pay_order(self,order,gateway):
+        order.pay(gateway)
+    def cancel_order(self,order):
+        order.cancel()
+class productrepository:
+    def __init__(self):
+        self.products=[]
+    def add(self,product):
+        self.products.append(product)
+    def get_by_id(self,id):
+        for product in self.products:
+            if product.id == id :
+                return product
+    def get_all(self):
+        return self.products
+    def delete(self,id):
+        for product in self.products:
+            if product.id == id:
+                self.products.remove(product)
+cart = Cart()
+
+user = User(1, "Samin", "samin@gmail.com", cart)
+product1 = Product(1, "Laptop", 50000, 10)
+product2 = Product(2, "Mouse", 2000, 20)
+product3 = Product(3, "Keyboard", 3000, 15)
+repository = productrepository()
+repository.add(product1)
+repository.add(product2)
+repository.add(product3)
+user.add_to_cart(product1, 1)
+user.add_to_cart(product2, 2)
+print(cart)
+total = cart.calculate_total()
+print("Total price:", total)
+gateway = Fakepaymentgateway()
+service = Orderservice(repository)
+order = service.create_order(1,user,cart.cart,total,cart,gateway)
+service.pay_order(order, gateway)
+product1.stock -= 1
+product2.stock -= 2
+notification = EmailNotification()
+notify_user(notification,"Your order has been paid successfully.")
+print("Final order status:", order.status)
+
+
+
 
 
 
